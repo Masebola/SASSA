@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Register — SASSA Services Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <span class="brand-mark">SA</span>
+      <span>SASSA Services <span class="brand-tag">Prototype</span></span>
+    </a>
+    <button class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="index.html">Home</a></li>
+      <li data-nav-guest style="display:flex; gap:14px; align-items:center;">
+        <a href="login.html">Log in</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+      </li>
+      <li data-nav-member style="display:none; gap:14px; align-items:center;">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" data-logout class="btn btn-outline btn-sm">Log out</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<section class="section">
+  <div class="container form-shell">
+    <h1 class="text-center">Create your account</h1>
+    <p class="text-center">Register once to apply for a grant, track your application and view your payments.</p>
+
+    <div id="form-message" class="form-message" role="alert"></div>
+
+    <form id="register-form" class="card stack">
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="first_name">First name</label>
+          <input type="text" id="first_name" name="first_name" required autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <label for="last_name">Last name</label>
+          <input type="text" id="last_name" name="last_name" required autocomplete="family-name" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="id_number">ID number</label>
+        <input type="text" id="id_number" name="id_number" required inputmode="numeric" />
+        <span class="hint">Use a fictional test ID number for this prototype — never a real one.</span>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel" />
+      </div>
+
+      <div class="field">
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" required autocomplete="street-address" />
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password" />
+        <span class="hint">At least 6 characters.</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+
+    <p class="text-center" style="margin-top:16px;">
+      Already have an account? <a href="login.html">Sign in</a>
+    </p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© 2026 SASSA Services Prototype — academic demonstration only.</span>
+    <span>Use fictional test data only.</span>
+  </div>
+</footer>
+
+<script type="module" src="js/nav.js"></script>
+<script type="module" src="js/auth.js"></script>
+</body>
+</html>

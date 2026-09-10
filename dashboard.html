@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Dashboard — SASSA Services Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <span class="brand-mark">SA</span>
+      <span>SASSA Services <span class="brand-tag">Prototype</span></span>
+    </a>
+    <button class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="apply.html">Apply</a></li>
+      <li><a href="payments.html">Payments</a></li>
+      <li><a href="notifications.html">Notifications</a></li>
+      <li><a href="help.html">Help</a></li>
+      <li><a href="#" data-logout>Log out</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="dash-header">
+      <div>
+        <h1 class="mb-0" data-welcome-name>My Dashboard</h1>
+        <p class="dash-welcome mb-0">Everything about your SASSA services, in one place.</p>
+      </div>
+      <a href="apply.html" class="btn btn-primary">Apply for a Grant</a>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card" data-application-card>
+        <div class="empty-state">
+          <div class="icon">📝</div>
+          <p>Loading your application…</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Payments</h3>
+        <p>No payments yet.</p>
+        <a href="payments.html" class="btn btn-outline btn-sm">View payments</a>
+      </div>
+
+      <div class="card" data-notifications-card>
+        <h3>Notifications</h3>
+        <p>Loading…</p>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:20px;">
+      <div class="card">
+        <h3>My Profile</h3>
+        <p>Update your contact details and address.</p>
+        <a href="profile.html" class="btn btn-outline btn-sm">Manage profile</a>
+      </div>
+      <div class="card">
+        <h3>Help &amp; Support</h3>
+        <p>Submit an enquiry, report a problem, or appeal a decision.</p>
+        <a href="help.html" class="btn btn-outline btn-sm">Get help</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© 2026 SASSA Services Prototype — academic demonstration only.</span>
+    <span>Payments, identity verification and medical assessment are simulated.</span>
+  </div>
+</footer>
+
+<script type="module" src="js/nav.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

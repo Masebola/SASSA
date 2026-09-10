@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SASSA Social Grant Services — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <span class="brand-mark">SA</span>
+      <span>
+        SASSA Services
+        <span class="brand-tag">Prototype</span>
+      </span>
+    </a>
+    <button class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="index.html#grants">Grants</a></li>
+      <li><a href="index.html#help">Help</a></li>
+      <li data-nav-guest style="display:flex; gap:14px; align-items:center;">
+        <a href="login.html">Log in</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+      </li>
+      <li data-nav-member style="display:none; gap:14px; align-items:center;">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" data-logout class="btn btn-outline btn-sm">Log out</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="proto-flag">Academic prototype — not an official SASSA product</span>
+    <h1>Apply for a grant, track it, and manage your SASSA services online.</h1>
+    <p>Select a grant, find out where you stand before you finish the form, and follow your application from submission to payment — all in one place.</p>
+    <div class="hero-actions">
+      <a href="register.html" class="btn btn-primary">Apply for a Grant</a>
+      <a href="login.html" class="btn btn-outline">Check Application Status</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2>What would you like to do?</h2>
+    <div class="action-row">
+      <div class="action-tile">
+        <span class="icon">📝</span>
+        <h3>Apply for a grant</h3>
+        <p>Choose a grant type and complete a short, guided application.</p>
+        <a href="register.html">Get started →</a>
+      </div>
+      <div class="action-tile">
+        <span class="icon">📍</span>
+        <h3>Check status</h3>
+        <p>See exactly where your application is, from submission to decision.</p>
+        <a href="login.html">Check status →</a>
+      </div>
+      <div class="action-tile">
+        <span class="icon">💳</span>
+        <h3>My payments</h3>
+        <p>View your payment history and current payment status.</p>
+        <a href="login.html">View payments →</a>
+      </div>
+      <div class="action-tile">
+        <span class="icon">💬</span>
+        <h3>Get help</h3>
+        <p>Ask a question, report a problem, or appeal a decision.</p>
+        <a href="login.html">Get help →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="grants" style="background:var(--color-surface); border-top:1px solid var(--color-border); border-bottom:1px solid var(--color-border);">
+  <div class="container">
+    <h2>Grant information</h2>
+    <p>This prototype demonstrates a subset of SASSA grants. Requirements shown are for demonstration only — always confirm current criteria with SASSA directly.</p>
+    <div class="grid grid-3">
+      <div class="card grant-card">
+        <div class="grant-icon">👴</div>
+        <h3>Older Person's Grant</h3>
+        <p>For qualifying older persons who meet the age and residency requirements.</p>
+        <a href="register.html" class="btn btn-outline btn-sm">View requirements</a>
+      </div>
+      <div class="card grant-card">
+        <div class="grant-icon">♿</div>
+        <h3>Disability Grant</h3>
+        <p>For persons with a qualifying disability, subject to assessment.</p>
+        <a href="register.html" class="btn btn-outline btn-sm">View requirements</a>
+      </div>
+      <div class="card grant-card">
+        <div class="grant-icon">👶</div>
+        <h3>Child Support Grant</h3>
+        <p>For primary caregivers of a qualifying child.</p>
+        <a href="register.html" class="btn btn-outline btn-sm">View requirements</a>
+      </div>
+      <div class="card grant-card">
+        <div class="grant-icon">🏠</div>
+        <h3>Foster Child Grant</h3>
+        <p>For legally recognised foster parents of a child in their care.</p>
+        <a href="register.html" class="btn btn-outline btn-sm">View requirements</a>
+      </div>
+      <div class="card grant-card">
+        <div class="grant-icon">🩺</div>
+        <h3>Care Dependency Grant</h3>
+        <p>For primary caregivers of a child with a severe disability requiring full-time care.</p>
+        <a href="register.html" class="btn btn-outline btn-sm">View requirements</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="help">
+  <div class="container text-center">
+    <h2>Need a hand?</h2>
+    <p>Log in to submit an enquiry, report a problem, or appeal a decision — every request gets a reference number you can track.</p>
+    <a href="login.html" class="btn btn-primary">Get help</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© 2026 SASSA Services Prototype — academic demonstration only.</span>
+    <span>Payments, identity verification and medical assessment are simulated.</span>
+  </div>
+</footer>
+
+<script type="module" src="js/nav.js"></script>
+</body>
+</html>
