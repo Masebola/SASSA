@@ -17,6 +17,7 @@ create table profiles (
   first_name text not null,
   last_name text not null,
   id_number text not null,
+  date_of_birth date,
   phone text,
   email text,
   address text,
@@ -46,12 +47,22 @@ create table grant_requirements (
   requires_manual_assessment boolean not null default false
 );
 
+-- Document checklist per grant, so the checklist shown in the
+-- application wizard is data-driven rather than hard-coded per grant.
+create table grant_documents (
+  id uuid primary key default uuid_generate_v4(),
+  grant_id uuid not null references grant_types(id) on delete cascade,
+  document_type text not null,   -- machine key, e.g. 'identity_document'
+  label text not null,           -- human label shown in the checklist
+  required boolean not null default true
+);
+
 -- =============================================================
 -- 3. APPLICATIONS
 -- =============================================================
 create table applications (
   id uuid primary key default uuid_generate_v4(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
   grant_type_id uuid not null references grant_types(id),
   reference_number text not null unique,
   status text not null default 'submitted'
@@ -62,9 +73,10 @@ create table applications (
     )),
   screening_result text,
   screening_reason text,
+  details jsonb not null default '{}'::jsonb, -- grant-specific answers (e.g. child's date of birth)
   application_date timestamptz not null default now(),
   reviewed_at timestamptz,
-  reviewed_by uuid references auth.users(id),
+  reviewed_by uuid references profiles(id),
   rejection_reason text
 );
 
@@ -102,7 +114,7 @@ create table assessments (
 create table payments (
   id uuid primary key default uuid_generate_v4(),
   application_id uuid not null references applications(id) on delete cascade,
-  beneficiary_id uuid not null references auth.users(id) on delete cascade,
+  beneficiary_id uuid not null references profiles(id) on delete cascade,
   amount numeric(10,2) not null,
   payment_date timestamptz,
   status text not null default 'scheduled'
@@ -117,7 +129,7 @@ create table payments (
 -- =============================================================
 create table notifications (
   id uuid primary key default uuid_generate_v4(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
   title text not null,
   message text not null,
   is_read boolean not null default false,
@@ -130,7 +142,7 @@ create table notifications (
 create table support_requests (
   id uuid primary key default uuid_generate_v4(),
   application_id uuid references applications(id) on delete set null,
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
   type text not null default 'enquiry' check (type in ('enquiry', 'problem', 'appeal')),
   reason text not null,
   status text not null default 'submitted'
@@ -144,7 +156,7 @@ create table support_requests (
 -- =============================================================
 create table audit_logs (
   id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users(id),
+  user_id uuid references profiles(id),
   action text not null,
   description text,
   timestamp timestamptz not null default now()
@@ -173,6 +185,7 @@ alter table support_requests enable row level security;
 alter table audit_logs enable row level security;
 alter table grant_types enable row level security;
 alter table grant_requirements enable row level security;
+alter table grant_documents enable row level security;
 
 -- profiles
 create policy "profiles_select_own_or_admin" on profiles for select
@@ -187,6 +200,7 @@ create policy "profiles_insert_own" on profiles for insert
 -- beneficiaries means they cannot write to these tables at all)
 create policy "grant_types_read_all" on grant_types for select using (true);
 create policy "grant_requirements_read_all" on grant_requirements for select using (true);
+create policy "grant_documents_read_all" on grant_documents for select using (true);
 
 -- applications
 create policy "applications_select_own_or_admin" on applications for select
@@ -254,9 +268,11 @@ insert into grant_types (name, description) values
   ('Foster Child Grant', 'For legally recognised foster parents of a child in their care.'),
   ('Care Dependency Grant', 'For primary caregivers of a child with a severe disability requiring full-time care.');
 
--- Older Person's Grant: hard age rule + soft means-test rule
+-- Older Person's Grant: hard age rule, hard institution rule, soft means-test rule
 insert into grant_requirements (grant_id, requirement_type, operator, value, severity, requires_manual_assessment)
 select id, 'age_min', '>=', '60', 'hard', false from grant_types where name = 'Older Person''s Grant';
+insert into grant_requirements (grant_id, requirement_type, operator, value, severity, requires_manual_assessment)
+select id, 'institution_resident', '=', 'false', 'hard', false from grant_types where name = 'Older Person''s Grant';
 insert into grant_requirements (grant_id, requirement_type, operator, value, severity, requires_manual_assessment)
 select id, 'means_test', 'manual', null, 'soft', true from grant_types where name = 'Older Person''s Grant';
 
@@ -279,3 +295,60 @@ select id, 'foster_status', 'manual', null, 'soft', true from grant_types where 
 -- Care Dependency Grant: manual assessment only
 insert into grant_requirements (grant_id, requirement_type, operator, value, severity, requires_manual_assessment)
 select id, 'care_dependency_assessment', 'manual', null, 'soft', true from grant_types where name = 'Care Dependency Grant';
+
+-- =============================================================
+-- SEED DATA — document checklist per grant (data-driven, so the
+-- checklist in apply.html is never hard-coded per grant type)
+-- =============================================================
+
+-- Identity document is required for every grant
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'identity_document', 'Identity document', true from grant_types;
+
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'proof_of_income', 'Proof of income', true from grant_types where name = 'Older Person''s Grant';
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'bank_statement', 'Bank statement', true from grant_types where name = 'Older Person''s Grant';
+
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'medical_report', 'Medical / disability assessment report', true from grant_types where name = 'Disability Grant';
+
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'child_birth_certificate', 'Child''s birth certificate', true from grant_types where name = 'Child Support Grant';
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'proof_of_income', 'Proof of income', true from grant_types where name = 'Child Support Grant';
+
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'foster_care_order', 'Foster care order', true from grant_types where name = 'Foster Child Grant';
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'child_birth_certificate', 'Child''s birth certificate', true from grant_types where name = 'Foster Child Grant';
+
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'medical_report', 'Medical / care dependency report', true from grant_types where name = 'Care Dependency Grant';
+insert into grant_documents (grant_id, document_type, label, required)
+select id, 'child_birth_certificate', 'Child''s birth certificate', true from grant_types where name = 'Care Dependency Grant';
+
+-- =============================================================
+-- STORAGE — bucket + policies for uploaded supporting documents
+--
+-- The "documents" bucket itself must still be created once from
+-- the Supabase dashboard (Storage -> New bucket -> name it
+-- "documents", keep it private). These policies then restrict
+-- who can read/write inside it. Files are stored under a path
+-- like: {user_id}/{reference_number}/{document_type}__{filename}
+-- so the first path segment is always the owning user's ID.
+-- =============================================================
+
+create policy "documents_bucket_insert_own"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'documents'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "documents_bucket_select_own_or_admin"
+  on storage.objects for select
+  using (
+    bucket_id = 'documents'
+    and ( (storage.foldername(name))[1] = auth.uid()::text or is_admin() )
+  );

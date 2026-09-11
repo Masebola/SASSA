@@ -27,16 +27,24 @@ async function initAuthAwareLinks() {
 
   if (guestSlot) guestSlot.style.display = loggedIn ? "none" : "flex";
   if (memberSlot) memberSlot.style.display = loggedIn ? "flex" : "none";
+}
 
+// Wired up unconditionally: pages that are always in a signed-in
+// context (the beneficiary dashboard, every admin page) still need
+// their "Log out" link to work even though they have no guest/member
+// slots to toggle. The redirect target is passed in per page because
+// admin pages live one folder deeper than everything else.
+function initLogoutButton() {
   const logoutBtn = document.querySelector("[data-logout]");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await supabase.auth.signOut();
-      window.location.href = "index.html";
-    });
-  }
+  if (!logoutBtn) return;
+  const redirectTo = logoutBtn.dataset.logout || "index.html";
+  logoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await supabase.auth.signOut();
+    window.location.href = redirectTo;
+  });
 }
 
 initMobileToggle();
 initAuthAwareLinks();
+initLogoutButton();

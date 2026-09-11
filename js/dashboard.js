@@ -11,6 +11,17 @@
 import { supabase } from "./supabaseClient.js";
 import { requireSession } from "./auth.js";
 
+const STATUS_BADGE = {
+  submitted: "badge-info",
+  screening: "badge-info",
+  further_assessment_required: "badge-warning",
+  documents_required: "badge-warning",
+  under_review: "badge-info",
+  approved: "badge-success",
+  rejected: "badge-danger",
+};
+const PAYMENT_BADGE = { scheduled: "badge-info", processing: "badge-warning", completed: "badge-success" };
+
 async function loadDashboard() {
   const session = await requireSession();
   if (!session) return; // requireSession already redirected to login.html
@@ -36,6 +47,15 @@ async function loadDashboard() {
     .limit(1);
 
   renderApplicationCard(applications && applications[0]);
+
+  const { data: payments } = await supabase
+    .from("payments")
+    .select("id, amount, status")
+    .eq("beneficiary_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  renderPaymentsCard(payments && payments[0]);
 
   const { count: unreadCount } = await supabase
     .from("notifications")
@@ -63,9 +83,30 @@ function renderApplicationCard(application) {
   el.innerHTML = `
     <h3>My Application</h3>
     <p>${application.grant_types?.name || "Grant application"}</p>
-    <span class="badge badge-info">${application.status}</span>
+    <span class="badge ${STATUS_BADGE[application.status] || "badge-neutral"}">${application.status.replace(/_/g, " ")}</span>
     <div style="margin-top:14px;">
       <a href="application-status.html?id=${application.id}" class="btn btn-outline btn-sm">View details</a>
+    </div>`;
+}
+
+function renderPaymentsCard(payment) {
+  const el = document.querySelector("[data-payments-card]");
+  if (!el) return;
+
+  if (!payment) {
+    el.innerHTML = `
+      <h3>Payments</h3>
+      <p>No payments yet.</p>
+      <a href="payments.html" class="btn btn-outline btn-sm">View payments</a>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <h3>Payments</h3>
+    <p>R${payment.amount}</p>
+    <span class="badge ${PAYMENT_BADGE[payment.status] || "badge-neutral"}">${payment.status}</span>
+    <div style="margin-top:14px;">
+      <a href="payments.html" class="btn btn-outline btn-sm">View payments</a>
     </div>`;
 }
 

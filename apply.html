@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apply for a Grant — SASSA Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">
+      <span class="brand-mark">SA</span>
+      <span>SASSA Services</span>
+    </a>
+    <button class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="apply.html" class="active">Apply</a></li>
+      <li><a href="payments.html">Payments</a></li>
+      <li><a href="notifications.html">Notifications</a></li>
+      <li><a href="help.html">Help</a></li>
+      <li><a href="#" data-logout>Log out</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="section">
+  <div class="container" style="max-width: 760px;">
+
+    <div id="wizard-container">
+      <h1>Apply for a Grant</h1>
+      <ol class="stepper" id="stepper"></ol>
+
+      <!-- Step 1: Personal information -->
+      <div class="wizard-step" data-step="1">
+        <div class="card">
+          <h2>Personal information</h2>
+          <p>Confirm the details we'll use for your application.</p>
+          <div id="personal-error" class="form-message" role="alert"></div>
+          <div id="personal-summary"></div>
+        </div>
+        <div class="wizard-nav">
+          <span></span>
+          <button class="btn btn-primary" data-next="2">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Grant selection -->
+      <div class="wizard-step" data-step="2">
+        <div class="card">
+          <h2>Select a grant</h2>
+          <p>Choose the grant you'd like to apply for.</p>
+          <div id="grant-error" class="form-message" role="alert"></div>
+          <div class="grant-select-list" id="grant-list"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" data-back="1">Back</button>
+          <button class="btn btn-primary" data-next="3">Next: Run initial check</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Screening -->
+      <div class="wizard-step" data-step="3">
+        <div class="card">
+          <h2>Initial eligibility check</h2>
+          <p>This is an automated check based on the information provided. A final decision is always made by an administrator.</p>
+          <div id="quick-check-fields"></div>
+          <button id="run-screening-btn" class="btn btn-primary">Run initial check</button>
+          <div id="screening-result" style="margin-top:16px;"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" data-back="2">Back</button>
+          <span style="display:flex; gap:10px;">
+            <button id="screening-choose-another-btn" class="btn btn-outline" style="display:none;">Choose another grant</button>
+            <button id="screening-continue-btn" class="btn btn-primary" style="display:none;">Continue</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- Step 4: Additional information -->
+      <div class="wizard-step" data-step="4">
+        <div class="card">
+          <h2>Additional information</h2>
+          <p>Only the details relevant to your selected grant are shown here.</p>
+          <div id="details-error" class="form-message" role="alert"></div>
+          <div id="details-fields"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" data-back="3">Back</button>
+          <button class="btn btn-primary" data-next="5">Next: Documents</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Documents -->
+      <div class="wizard-step" data-step="5">
+        <div class="card">
+          <h2>Supporting documents</h2>
+          <p>Upload the documents below. Accepted file types: PDF, JPG or PNG.</p>
+          <div id="documents-error" class="form-message" role="alert"></div>
+          <div class="doc-checklist" id="doc-checklist"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" data-back="4">Back</button>
+          <button class="btn btn-primary" data-next="6">Next: Review</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Review -->
+      <div class="wizard-step" data-step="6">
+        <div class="card">
+          <h2>Review your application</h2>
+          <p>Check everything below before submitting.</p>
+          <div id="review-error" class="form-message" role="alert"></div>
+          <div id="review-summary"></div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" data-back="5">Back</button>
+          <button id="submit-application-btn" class="btn btn-primary">Submit Application</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmation" style="display:none;"></div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+      <span>© 2026 SASSA Services. All rights reserved.</span>
+    </div>
+</footer>
+
+<script type="module" src="js/nav.js"></script>
+<script type="module" src="js/apply.js"></script>
+</body>
+</html>

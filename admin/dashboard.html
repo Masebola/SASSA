@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administration — SASSA Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav-brand" href="dashboard.html">
+      <span class="brand-mark">SA</span>
+      <span>SASSA Administration</span>
+    </a>
+    <button class="nav-toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="dashboard.html" class="active">Applications</a></li>
+      <li><a href="#" data-logout="../index.html">Log out</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a href="dashboard.html" class="active">Applications</a>
+    <a href="dashboard.html">Beneficiaries</a>
+    <a href="dashboard.html">Support requests</a>
+  </aside>
+
+  <main class="admin-main">
+    <div class="dash-header">
+      <div>
+        <h1 class="mb-0">Applications</h1>
+        <p class="dash-welcome mb-0">Review, verify documents, and process decisions.</p>
+      </div>
+    </div>
+
+    <div class="stat-cards" id="stat-cards">
+      <div class="stat-card"><div class="num">—</div><div class="label">Loading…</div></div>
+    </div>
+
+    <div class="card">
+      <div class="table-toolbar">
+        <input type="text" id="search-input" placeholder="Search by reference, name or grant" />
+        <select id="status-filter">
+          <option value="">All statuses</option>
+          <option value="pending_review">Pending Review</option>
+          <option value="documents_required">Documents Required</option>
+          <option value="assessment">Assessment</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Reference</th><th>Applicant</th><th>Grant</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="applications-table-body">
+            <tr><td colspan="5">Loading applications…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="../js/nav.js"></script>
+<script type="module" src="dashboard.js"></script>
+</body>
+</html>

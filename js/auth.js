@@ -40,6 +40,7 @@ export function initRegisterForm() {
     const firstName = formData.get("first_name");
     const lastName = formData.get("last_name");
     const idNumber = formData.get("id_number");
+    const dateOfBirth = formData.get("date_of_birth");
     const phone = formData.get("phone");
     const address = formData.get("address");
 
@@ -64,6 +65,7 @@ export function initRegisterForm() {
         first_name: firstName,
         last_name: lastName,
         id_number: idNumber,
+        date_of_birth: dateOfBirth,
         phone,
         email,
         address,
@@ -129,6 +131,29 @@ export async function requireSession() {
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
     window.location.href = "login.html";
+    return null;
+  }
+  return data.session;
+}
+
+// ---------- Admin page protection (admin/*.html) ----------
+// Requires a session AND profiles.role === 'admin'. A signed-in
+// beneficiary is redirected back to their own dashboard rather than
+// being shown the admin area.
+export async function requireAdminSession() {
+  if (!isConfigured()) return null;
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) {
+    window.location.href = "../login.html";
+    return null;
+  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.session.user.id)
+    .single();
+  if (profile?.role !== "admin") {
+    window.location.href = "../dashboard.html";
     return null;
   }
   return data.session;
