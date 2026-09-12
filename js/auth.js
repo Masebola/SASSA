@@ -47,36 +47,35 @@ export function initRegisterForm() {
     submitBtn.disabled = true;
     submitBtn.textContent = "Creating account...";
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // The profile row is created automatically by a database trigger
+    // (see db/schema.sql: handle_new_user) as soon as this account
+    // exists — not by a separate insert from here. That trigger reads
+    // these extra fields out of the signup metadata below. Doing it
+    // this way (rather than inserting into `profiles` from the
+    // browser right after signUp) avoids a timing problem: if your
+    // Supabase project has email confirmation turned on, there is no
+    // authenticated session yet at this point, so a client-side
+    // insert would be rejected by Row Level Security.
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          id_number: idNumber,
+          date_of_birth: dateOfBirth,
+          phone,
+          address,
+        },
+      },
+    });
 
     if (error) {
       showMessage(messageEl, error.message, "error");
       submitBtn.disabled = false;
       submitBtn.textContent = "Create account";
       return;
-    }
-
-    // Create the matching profile row. If email confirmation is
-    // enabled in your Supabase project, data.user will exist but
-    // data.session may be null until the user confirms their email.
-    if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: data.user.id,
-        first_name: firstName,
-        last_name: lastName,
-        id_number: idNumber,
-        date_of_birth: dateOfBirth,
-        phone,
-        email,
-        address,
-        role: "beneficiary",
-      });
-      if (profileError) {
-        showMessage(messageEl, `Account created, but profile setup failed: ${profileError.message}`, "error");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Create account";
-        return;
-      }
     }
 
     showMessage(messageEl, "Account created. Redirecting to sign in...", "success");
