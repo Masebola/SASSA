@@ -25,6 +25,39 @@ create table profiles (
   created_at timestamptz not null default now()
 );
 
+-- Automatically create the matching profiles row the instant a new
+-- auth.users row is created — instead of the browser inserting it
+-- after signUp(). This matters because supabase.auth.signUp() only
+-- returns an authenticated session immediately if email confirmation
+-- is OFF; if it's ON, there's no session yet for a client-side insert
+-- to use, and the profiles_insert_own RLS policy below would reject
+-- it. A trigger with `security definer` runs with elevated privileges
+-- and bypasses RLS, so it works either way. It reads the extra fields
+-- from the metadata passed via supabase.auth.signUp({ options: { data } }).
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, first_name, last_name, id_number, date_of_birth, phone, email, address, role)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'first_name', ''),
+    coalesce(new.raw_user_meta_data->>'last_name', ''),
+    coalesce(new.raw_user_meta_data->>'id_number', ''),
+    nullif(new.raw_user_meta_data->>'date_of_birth', '')::date,
+    new.raw_user_meta_data->>'phone',
+    new.email,
+    new.raw_user_meta_data->>'address',
+    'beneficiary'
+  );
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
 -- =============================================================
 -- 2. GRANT TYPES + GRANT REQUIREMENTS
 --    Eligibility rules are stored as data (not hard-coded) so a
@@ -192,6 +225,10 @@ create policy "profiles_select_own_or_admin" on profiles for select
   using (id = auth.uid() or is_admin());
 create policy "profiles_update_own" on profiles for update
   using (id = auth.uid());
+-- Normal inserts now happen via the handle_new_user() trigger above,
+-- which runs as security definer and bypasses RLS entirely. This
+-- policy is just a safety net in case anything ever inserts a profile
+-- from an authenticated client session directly.
 create policy "profiles_insert_own" on profiles for insert
   with check (id = auth.uid());
 

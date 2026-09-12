@@ -27,6 +27,10 @@ sassa-prototype/
     dashboard.js             Admin queue data loading + search/filter
     application-review.html Review one application: applicant, documents, decision, payment
     application-review.js
+    beneficiaries.html      Every registered beneficiary, with a jump into their applications
+    beneficiaries.js
+    support-requests.html   Enquiries, problem reports and appeals — respond and change status
+    support-requests.js
   assets/
     hero-illustration.svg  Homepage illustration — replace with your own image any time (see Section 10)
   css/
@@ -289,10 +293,6 @@ here to license or attribute. To use your own photo instead:
   integration — all are simulated.
 - Only five grant types and a representative subset of their published
   eligibility rules are implemented.
-- The admin dashboard's "Beneficiaries" and "Support requests" sidebar
-  links currently point back to the applications queue as placeholders
-  — support requests are visible to the beneficiary who submitted them
-  (`help.html`), but there's no admin-side screen to respond to them yet.
 - The screening engine matches grant-specific field configs in `apply.js`
   by exact grant name (e.g. `"Older Person's Grant"`). If you rename a
   grant in the database, update the matching keys in

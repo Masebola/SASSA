@@ -90,6 +90,12 @@ function wireToolbar() {
   const searchInput = document.querySelector("#search-input");
   const statusSelect = document.querySelector("#status-filter");
 
+  // Support being linked to with a pre-filled search or status, e.g.
+  // from the Beneficiaries page ("View applications" for one person).
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("search")) searchInput.value = params.get("search");
+  if (params.get("status")) statusSelect.value = params.get("status");
+
   function applyFilters() {
     const term = searchInput.value.trim().toLowerCase();
     const statusFilter = statusSelect.value;
@@ -109,6 +115,8 @@ function wireToolbar() {
 
   searchInput.addEventListener("input", applyFilters);
   statusSelect.addEventListener("change", applyFilters);
+
+  if (params.get("search") || params.get("status")) applyFilters();
 }
 
 init();
