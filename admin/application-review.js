@@ -28,8 +28,11 @@ async function init() {
   applicationId = new URLSearchParams(window.location.search).get("id");
   if (!applicationId) return showNotFound("No application was specified.");
 
-  application = await fetchApplication();
-  if (!application) return showNotFound("We couldn't find that application.");
+  const { data, error } = await fetchApplication();
+  if (error || !data) {
+    return showNotFound(error ? `We couldn't load that application: ${error.message}` : "We couldn't find that application.");
+  }
+  application = data;
 
   await maybeMarkUnderReview();
   render();
@@ -39,11 +42,14 @@ async function init() {
 async function fetchApplication() {
   const { data, error } = await supabase
     .from("applications")
-    .select("*, grant_types(name), profiles(first_name,last_name,id_number,phone,email,address,date_of_birth), documents(*), payments(*)")
+    // profiles!user_id disambiguates which relationship to follow:
+    // applications has two foreign keys into profiles (user_id and
+    // reviewed_by), so without this hint Supabase can't tell which
+    // one to use and the whole query fails.
+    .select("*, grant_types(name), profiles!user_id(first_name,last_name,id_number,phone,email,address,date_of_birth), documents(*), payments(*)")
     .eq("id", applicationId)
     .single();
-  if (error) return null;
-  return data;
+  return { data, error };
 }
 
 // The moment an administrator opens a freshly submitted (or
@@ -234,8 +240,9 @@ function wireDocumentButtons() {
   document.querySelectorAll("[data-verify-doc]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const docId = btn.dataset.verifyDoc;
-      await supabase.from("documents").update({ verification_status: "verified" }).eq("id", docId);
-      application = await fetchApplication();
+      const { error } = await supabase.from("documents").update({ verification_status: "verified" }).eq("id", docId);
+      if (error) return alert(`Could not mark this document as verified: ${error.message}`);
+      application = (await fetchApplication()).data;
       render();
       wireActions();
     });
@@ -246,11 +253,12 @@ async function handleRequestDocuments() {
   const message = document.querySelector("#documents-message").value.trim();
   if (!message) return setError("documents-error", "Please describe what's needed.");
 
-  await supabase.from("applications").update({
+  const { error: updateError } = await supabase.from("applications").update({
     status: "documents_required",
     reviewed_at: new Date().toISOString(),
     reviewed_by: session.user.id,
   }).eq("id", applicationId);
+  if (updateError) return setError("documents-error", `Could not update the application: ${updateError.message}`);
 
   await supabase.from("notifications").insert({
     user_id: application.user_id,
@@ -260,7 +268,7 @@ async function handleRequestDocuments() {
 
   await logAudit("request_documents", `Requested additional documents for ${application.reference_number}: ${message}`);
 
-  application = await fetchApplication();
+  application = (await fetchApplication()).data;
   render();
   wireActions();
 }
@@ -272,14 +280,15 @@ async function handleApprove() {
     return setError("approve-error", "Please enter a valid grant amount.");
   }
 
-  await supabase.from("applications").update({
+  const { error: updateError } = await supabase.from("applications").update({
     status: "approved",
     reviewed_at: new Date().toISOString(),
     reviewed_by: session.user.id,
   }).eq("id", applicationId);
+  if (updateError) return setError("approve-error", `Could not approve the application: ${updateError.message}`);
 
   const paymentReference = `SIM-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-  await supabase.from("payments").insert({
+  const { error: paymentError } = await supabase.from("payments").insert({
     application_id: applicationId,
     beneficiary_id: application.user_id,
     amount,
@@ -287,6 +296,7 @@ async function handleApprove() {
     payment_method: "simulated",
     reference_number: paymentReference,
   });
+  if (paymentError) return setError("approve-error", `Application approved, but the payment could not be scheduled: ${paymentError.message}`);
 
   await supabase.from("notifications").insert({
     user_id: application.user_id,
@@ -296,7 +306,7 @@ async function handleApprove() {
 
   await logAudit("approve_application", `Approved ${application.reference_number}, scheduled payment of R${amount}`);
 
-  application = await fetchApplication();
+  application = (await fetchApplication()).data;
   render();
   wireActions();
 }
@@ -305,12 +315,13 @@ async function handleReject() {
   const reason = document.querySelector("#reject-reason").value.trim();
   if (!reason) return setError("reject-error", "Please explain the reason for rejection.");
 
-  await supabase.from("applications").update({
+  const { error: updateError } = await supabase.from("applications").update({
     status: "rejected",
     rejection_reason: reason,
     reviewed_at: new Date().toISOString(),
     reviewed_by: session.user.id,
   }).eq("id", applicationId);
+  if (updateError) return setError("reject-error", `Could not reject the application: ${updateError.message}`);
 
   await supabase.from("notifications").insert({
     user_id: application.user_id,
@@ -320,7 +331,7 @@ async function handleReject() {
 
   await logAudit("reject_application", `Rejected ${application.reference_number}: ${reason}`);
 
-  application = await fetchApplication();
+  application = (await fetchApplication()).data;
   render();
   wireActions();
 }
@@ -331,7 +342,8 @@ async function handleAdvancePayment(e) {
   const next = { scheduled: "processing", processing: "completed" }[current];
   if (!next) return;
 
-  await supabase.from("payments").update({ status: next, payment_date: new Date().toISOString() }).eq("id", paymentId);
+  const { error: updateError } = await supabase.from("payments").update({ status: next, payment_date: new Date().toISOString() }).eq("id", paymentId);
+  if (updateError) return setError("payment-error", `Could not update the payment: ${updateError.message}`);
 
   await supabase.from("notifications").insert({
     user_id: application.user_id,
@@ -341,7 +353,7 @@ async function handleAdvancePayment(e) {
 
   await logAudit("advance_payment", `Payment for ${application.reference_number} moved to ${next}`);
 
-  application = await fetchApplication();
+  application = (await fetchApplication()).data;
   render();
   wireActions();
 }

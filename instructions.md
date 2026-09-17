@@ -19,6 +19,7 @@ sassa-prototype/
   dashboard.html         Beneficiary dashboard
   apply.html             Guided grant application wizard + pre-screening engine
   application-status.html Application progress tracker for one application
+  profile.html             View and update your own details
   payments.html            Payment history
   notifications.html       Notifications list, with mark-as-read
   help.html                Support requests and appeals, with a request history
@@ -43,6 +44,7 @@ sassa-prototype/
     screening.js             Pure pre-screening logic (no Supabase/DOM — reusable and easy to test)
     apply.js                 Application wizard: steps, screening calls, document upload, submit
     application-status.js    Loads and renders one application's progress
+    profile.js                Loads and saves the signed-in user's own profile
     payments.js               Payment history with a progress stepper per payment
     notifications.js           Notification list, mark one / mark all as read
     help.js                    Support request form + request history

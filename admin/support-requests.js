@@ -104,7 +104,12 @@ async function handleRespond(requestId) {
 
   const request = allRequests.find((r) => r.id === requestId);
 
-  await supabase.from("support_requests").update({ status: newStatus }).eq("id", requestId);
+  const { error: updateError } = await supabase.from("support_requests").update({ status: newStatus }).eq("id", requestId);
+  if (updateError) {
+    errorEl.textContent = `Could not update this request: ${updateError.message}`;
+    errorEl.classList.add("show", "error");
+    return;
+  }
 
   await supabase.from("notifications").insert({
     user_id: request.user_id,

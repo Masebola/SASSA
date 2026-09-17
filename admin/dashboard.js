@@ -46,7 +46,10 @@ async function loadStats() {
 async function loadApplications() {
   const { data, error } = await supabase
     .from("applications")
-    .select("id, reference_number, status, application_date, grant_types(name), profiles(first_name, last_name)")
+    // profiles!user_id disambiguates which relationship to follow:
+    // applications has two foreign keys into profiles (user_id and
+    // reviewed_by), so without this hint the query fails outright.
+    .select("id, reference_number, status, application_date, grant_types(name), profiles!user_id(first_name, last_name)")
     .order("application_date", { ascending: false })
     .limit(100);
 
